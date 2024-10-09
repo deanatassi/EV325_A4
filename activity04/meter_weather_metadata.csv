@@ -1,0 +1,21 @@
+name,description,units
+Date,date/time,MM/DD/YYYY HH:MM
+SolRad,solar radiation,W/m^2
+Precip,precipitation,mm
+LightningAct,lightning strikes,NA
+LightningDist,lightning distance,km
+WindDir,wind direction,degree
+WindSpeed,wind speed,m/s
+GustSpeed,wind gust speed,m/s
+AirTemp,air temperature,degrees C
+VaporPr,vapor pressure,kPa
+AtmosPr,atmospheric pressure,kPa
+XLevel,measurement of sensor level,degree
+YLevel,measurement of sensor level,degree
+MaxPrecip,maximum precipitation rate,mm/h
+RHSensorTemp,relative humidity sensor temperature,C
+VPD,vapor pressure deficit,kPa
+BatPct,battery precent,%
+BatVolt,battery voltage,mV
+RefPr,data logger reference pressure,kPa
+LogTemp,data logger temperature,degrees C
