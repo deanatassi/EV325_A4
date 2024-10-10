@@ -1,8 +1,8 @@
-# Classwork
 library(lubridate)
 library(dplyr)
 library(ggplot2)
-
+# Classwork
+##################
 # Loading Data
 weather <- read.csv("/cloud/project/activity04/campus_weather.csv", na.strings = "#N/A")
 
@@ -83,7 +83,9 @@ timeCheck900 <- function(x){
 timeCheck900(weather$dateF)
 
 #Homework
-##########
+
+########## 
+#{Homework}
 
 # Question 1 
 # Goal: exclude precipitation  that occurs when air temperature is below zero 
@@ -104,7 +106,7 @@ meta <- read.csv("/cloud/project/activity04/meter_weather_metadata.csv")
 adj_weather$Battery_Flag <- if_else(adj_weather$BatVolt < 8500, 1, 0)
 
 # Question 3 - Function checking for unrealistic data changes in temperature and solar radiation
-
+######
 # Volatility Method
 
 # Examine distribution of temperature
@@ -158,14 +160,14 @@ abnormality <- function(x,y) {
 }
 abnormality(adj_weather$rolling_temp_vol, adj_weather$rolling_rad_vol)
 
-
+#######
 # "Range" Method (check out manual and ranges of data that don't make sense for NY)
 avg_SolRad <- mean(adj_weather$SolRad)
 
 quantile_temp <- quantile(adj_weather$AirTemp)
 quantile_rad <-  quantile(adj_weather$SolRad)
 
-temp_threshold <- quantile_temp[4] + 7 %>% as.numeric()
+temp_threshold <- quantile_temp[4] + 4 %>% as.numeric()
 rad_threshold <-  quantile_rad[4] + 400 %>% as.numeric()
 
 abnormality_range <- function(x,y) {
@@ -173,7 +175,7 @@ abnormality_range <- function(x,y) {
   if_else(x > temp_threshold & y > rad_threshold, 1, 0)
 }
 
-abnormality_range(adj_weather$AirTemp, adj_weather$SolRad)
+adj_weather$abnormality_range <- abnormality_range(adj_weather$AirTemp, adj_weather$SolRad)
 
 
 # Question 4 - Graph of winter air temperatures from Jan-Mar 2021
@@ -181,8 +183,8 @@ abnormality_range(adj_weather$AirTemp, adj_weather$SolRad)
 air_graph_data <- adj_weather %>% filter(year == 2021 & doy <= 90 )
 
 ggplot(air_graph_data, aes(x = dateF, y = AirTemp)) + 
-  geom_point() +
-  labs(y = "Air Temperature", title = "Graph of Air Temperature from January to March 2021", x = "Date")
+  geom_line() +
+  labs(y = "Air Temperature in Celsius", title = "Graph of Air Temperature from January to March 2021", x = "Date")
 
 
 # Question 5 - Calculating total precipitation between March and April 2021
@@ -195,17 +197,23 @@ precipitation_data <- adj_weather %>% filter(year == 2021 & doy <= 120 & doy >= 
 
 # There are 96 15-minute intervals in one day - use minimum daily temperature
 
-# Initializing
-Precip_new <- numeric()
+daily <- 
+  precipitation_data %>% 
+  group_by(doy) %>% 
+  summarise(daily_precipitation = sum(Precip, na.rm = TRUE),
+            daily_airtemp = min(AirTemp, na.rm = TRUE))
 
-Precip_store <- numeric()
+Precip_store_new <- numeric()
 
-for (i in 96:nrow(precepitation_data)) {
+for (i in 2:nrow(daily)) {
   
-  Precip_new[i] <- min(precipitation_data$Precip[(i-95):i])
+   Precip_store_new[i] <- if_else(daily$daily_airtemp[i] <= 1.67 | daily$daily_airtemp[i-1] <= 1.67,
+                              NA,
+                              daily$daily_precipitation[i])
   
-  Precip_store[i] <- if_else(Precip_new[i] <= 1.67, NA, Precip_new[i])
 }
 
-length(Precip_store)
+daily$Precip_store_new <- Precip_store_new
 
+answer <- sum(!is.na(daily$Precip_store_new))
+answer
